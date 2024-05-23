@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Клієнт</title>
+    <script src="/socket.io/socket.io.js"></script>
+
+</head>
+<body>
+    <h1>Клієнт</h1>
+    <button id="heating">Увімк./Вимк. опалення</button>
+    <button id="door">Відч./Зач. двері</button>
+    <input type="number" id="feed-field" placeholder="Кількість корму">
+    <button id="feed-button">Насипати корм</button>
+    <button id="status">Отримати статус</button>
+</body>
+
+<script>
+    const socket = io();
+    let heatingStatus = 0;
+    let doorStatus = 0;
+
+    document.getElementById("heating").addEventListener("click", () => {
+        heatingStatus = heatingStatus ? 0 : 1;
+        socket.emit("command", JSON.stringify({ command: "heating", value: heatingStatus }));
+    });
+
+    document.getElementById("door").addEventListener("click", () => {
+        doorStatus = doorStatus ? 0 : 1;
+        socket.emit("command", JSON.stringify({ command: "door", value: doorStatus }));
+    });
+
+    document.getElementById("feed-button").addEventListener("click", () => {
+        const value = document.getElementById("feed-field").value;
+        socket.emit("command", JSON.stringify({ command: "feed", value: parseFloat(value) }));
+    });
+
+    document.getElementById("status").addEventListener("click", () => {
+        socket.emit("command", JSON.stringify({ command: "status" }));
+    });
+
+    socket.on("receive-status", (msg) => {
+        console.log("Статус:", JSON.parse(msg));
+    });
+
+</script>
+</html>
